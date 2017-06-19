@@ -1,0 +1,113 @@
+﻿@{
+    var CustomerName = "";
+    var DeskWidth = "";
+    var DeskDepth = "";
+    var NumDrawer = "";
+    var DeskMaterial = "";
+    var ShipDays = "";
+    var OrderDate = "";
+    var PriceQuote = "";
+    var Id = "";
+
+    if (!IsPost)
+    {
+        if (!Request.QueryString["ID"].IsEmpty() && Request.QueryString["ID"].IsInt())
+        {
+            Id = Request.QueryString["ID"];
+            var db = Database.Open("MegaEscritorioDeskOrders");
+            var dbCommand = "SELECT * FROM DeskOrders WHERE ID = @0";
+            var row = db.QuerySingle(dbCommand, Id);
+
+            if (row != null)
+            {
+                CustomerName = row.customerName;
+                DeskWidth = row.deskWidth.ToString();
+                DeskDepth = row.deskDepth.ToString();
+                NumDrawer = row.numDrawer.ToString();
+                DeskMaterial = row.deskMaterial;
+                ShipDays = row.shipDays.ToString();
+                OrderDate = row.orderDate.ToString("M/d/yyyy");
+                PriceQuote = row.priceQuote.ToString();
+            }
+            else
+            {
+                Validation.AddFormError("No order was found for that ID.");
+            }
+        }
+        else
+        {
+            Validation.AddFormError("No order was selected.");
+        }
+    }
+    if (IsPost && !Request["buttonDelete"].IsEmpty())
+    {
+        Id = Request.Form["Id"];
+        var db = Database.Open("MegaEscritorioDeskOrders");
+        var deleteCommand = "DELETE FROM DeskOrders WHERE ID = @0";
+        db.Execute(deleteCommand, Id);
+        Response.Redirect("~/MegaEscritorio");
+    }
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Delete</title>
+    <link rel="stylesheet" type="text/css" href="~/Styles/Main.css" />
+</head>
+<body>
+    @RenderPage("~/_Nav.cshtml")
+    <h1>Delete a Desk Order</h1>
+    @Html.ValidationSummary()
+
+    <form method="post">
+        <fieldset>
+            <legend>Desk Order Information</legend>
+
+            <p>
+                <span>Customer Name:</span>
+                <span>@CustomerName</span>
+            </p>
+            <p>
+                <span>Desk Width:</span>
+                <span>@DeskWidth inches</span>
+            </p>
+            <p>
+                <span>Desk Depth:</span>
+                <span>@DeskDepth inches</span>
+            </p>
+            <p>
+                <span>Number of Drawers:</span>
+                <span>@NumDrawer</span>
+            </p>
+            <p>
+                <span>Desk Material:</span>
+                <span>@DeskMaterial</span>
+            </p>
+            <p>
+                <span>Number of Days to Ship:</span>
+                <span>@ShipDays</span>
+            </p>
+            <p>
+                <span>Order Date:</span>
+                <span>@OrderDate</span>
+            </p>
+            <p>
+                <span>Price Quote Total:</span>
+                <span>$@PriceQuote</span>
+            </p>
+
+            <input type="hidden" name="Id" value="@Id" />
+
+            <p>
+                <input type="submit" name="buttonDelete" value="Delete Order" />
+            </p>
+
+        </fieldset>
+        <p>
+            <a href="~/MegaEscritorio.cshtml">Return to Mega Escritorio Desks</a>
+        </p>
+    </form>
+
+</body>
+</html>
